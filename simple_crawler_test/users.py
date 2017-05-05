@@ -5,6 +5,7 @@ __author__ = 'Darcy'
 import re
 import urllib2
 
+
 old_url = 'http://www.jikexueyuan.com/course/android/?pageNum=2'
 total_page = 20
 

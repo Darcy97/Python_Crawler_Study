@@ -21,7 +21,6 @@ i = 0
 for url in list_url:
 
      f = open(r"/Users/zhang/imgs"+'/'+str(i)+'.jpg', 'wb')
-     print url
      req = urllib2.urlopen(url)
      buf = req.read()
      f.write(buf)
