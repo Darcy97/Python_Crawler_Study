@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>verilog实现的16位CPU设计 - Wsine - 博客园</title>
+<link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=m_FXmwz3wxZoecUwNEK23PAzc-j9vbX_C6MblJ5ouMc1"/>
+<link type="text/css" rel="stylesheet" href="/blog/customcss/208078.css?v=XtvEAcsTHmfA4w5fVCuZYv6YOQc%3d"/>
+<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="/skins/LessIsMore/bundle-LessIsMore-mobile.css?v=cQ0AaHqux6aS-vMMd5oSAg-U2pDq7j57NMONaWzYbBM1"/>
+<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/wsine/rss"/>
+<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/wsine/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/wsine/wlwmanifest.xml"/>
+<script src="//common.cnblogs.com/script/jquery.js" type="text/javascript"></script>  
+<script type="text/javascript">var currentBlogApp = 'wsine', cb_enable_mathjax=true;var isLogined=false;</script>
+<script src="/bundles/blog-common.js?v=CPv0EEqm9L2aCgolHxaZfVYM6J-Sn5az_FJXbjzgr-o1" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+<!--PageBeginHtml Block Begin-->
+<!-- Include required JS files -->
+<script type="text/javascript" src="http://files.cnblogs.com/wsine/shCore.js"></script>
+ 
+<!--
+	At least one brush, here we choose JS. You need to include a brush for every 
+	language you want to highlight
+-->
+<script type="text/javascript" src="http://files.cnblogs.com/wsine/shBrushCpp.js"></script>
+<script type="text/javascript" src="http://files.cnblogs.com/wsine/shBrushCSharp.js"></script>
+<script type="text/javascript" src="http://files.cnblogs.com/wsine/shBrushJScript.js"></script>
+ 
+<!-- Include *at least* the core style and default theme -->
+<link href="http://files.cnblogs.com/wsine/shCore.css" rel="stylesheet" type="text/css" />
+<link href="http://files.cnblogs.com/wsine/shThemeDefault.css" rel="stylesheet" type="text/css" />
+
+<!-- Include flowchart.js from http://flowchart.js.org/ -->
+<script type="text/javascript" src="http://files.cnblogs.com/files/wsine/raphael-min.js"></script>
+<script src="http://flowchart.js.org/flowchart-latest.js"></script>
+<!--PageBeginHtml Block End-->
+
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+		
+<!--done-->
+<div class="title"><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/wsine/">Wsine的博客小栈</a></div>
+<div class="subtitle"></div>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+<li id="nav_myhome"><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/wsine/">首页</a></li>
+<li id="nav_newpost"><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li id="nav_contact"><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/Wsine">联系</a></li>
+<li id="nav_rss"><a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/wsine/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="http://www.cnblogs.com/wsine/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li id="nav_admin"><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<!--done-->
+随笔-120&nbsp;
+文章-0&nbsp;
+评论-30&nbsp;
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class = "post">
+		<h1 class = "postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/wsine/p/4292869.html">verilog实现的16位CPU设计</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="cnblogs-markdown"><h1 id="verilog实现的16位cpu设计">verilog实现的16位CPU设计</h1>
+<hr />
+<h2 id="整体电路图">整体电路图</h2>
+<p><img src="http://images.cnitblog.com/blog/701997/201502/151420243083962.png" alt="整体电路图" /></p>
+<p><img src="http://images.cnitblog.com/blog/701997/201502/151421063706244.png" alt="整体电路图" /></p>
+<h4 id="cpu状态图">CPU状态图</h4>
+<p><img src="http://images.cnitblog.com/blog/701997/201502/151421363867308.png" alt="CPU状态图" /></p>
+<p>idle代表没有工作，exec代表在工作</p>
+<h2 id="实验设计思路">实验设计思路</h2>
+<p>五级流水线，增加硬件消耗换取时间的做法。<br />
+具体每一部分写什么将由代码部分指明。</p>
+<h2 id="完整代码">完整代码</h2>
+<h3 id="headfile.v">headfile.v</h3>
+<p>头文件定义。包含整个工程中的特殊变量定义。后文中只用到gr0到gr3部分，因此该部分没写gr4到gr7，有需要的同学请自行加上。</p>
+<pre><code>`ifndef HEADFILE_H_
+
+//State for CPU
+`define idle        1&#39;b0
+`define exec        1&#39;b1
+
+//Data transfer &amp; Arithmetic
+`define  NOP        5&#39;b00000
+`define  HALT       5&#39;b00001
+`define  LOAD       5&#39;b00010
+`define  STORE      5&#39;b00011
+`define  LDIH       5&#39;b10000
+`define  ADD        5&#39;b01000
+`define ADDI        5&#39;b01001
+`define ADDC        5&#39;b10001
+`define CMP     5&#39;b01100
+
+//Logical / shift
+`define AND     5&#39;b01101
+`define SLL     5&#39;b00100
+`define SLA     5&#39;b00101
+
+//Control
+`define JUMP        5&#39;b11000
+`define JMPR        5&#39;b11001
+`define BZ          5&#39;b11010
+`define BNZ     5&#39;b11011
+`define BN          5&#39;b11100
+`define BC          5&#39;b11110
+
+//Add by myself
+`define SUB     5&#39;b01010
+`define     SUBI    5&#39;b01011
+`define     SUBC    5&#39;b10010
+`define     OR      5&#39;b01110
+`define     XOR     5&#39;b01111
+`define     SRL     5&#39;b00110
+`define     SRA     5&#39;b00111
+`define     BNN     5&#39;b11101
+`define     BNC     5&#39;b11111
+
+//gr
+`define gr0 3&#39;b000
+`define gr1 3&#39;b001
+`define gr2 3&#39;b010
+`define gr3 3&#39;b011
+
+`endif</code></pre>
+<h3 id="cpu.v">CPU.v</h3>
+<p>这个是整个工程的顶层模块。输入100MHz时钟信号，四个开关选择控制七段译码管显示的内容，用button来控制CPU的一次流水线。<br />
+首先三个部分的时钟快慢要求不一样。七段译码器的时钟要求最快，要实时显示内容；memory的时钟要求较快，在PCPU下一级流水线到来之前完成数据读写。PCPU模块的时钟要求最慢，这个只是相对前面来说较慢。整个CPU的工作频率是比较快的。</p>
+<pre><code>`timescale 1ns / 1ps
+
+module CPU(
+    input clk,
+    input enable,
+    input reset,
+    input [3:0] SW,
+    input start,
+    input button,
+    output [6:0] light,
+    output [3:0] en
+    );
+
+    wire PCPU_clk;
+    wire MEM_clk;
+    wire LIGHT_clk;
+    
+    wire [15:0] d_datain;
+    wire [15:0] i_datain;
+    wire [3:0] select_y;
+    wire [7:0] d_addr;
+    wire [15:0] d_dataout;
+    wire d_we;
+    wire [7:0] i_addr;
+    wire [15:0] y;
+    
+    clk_div getMEMclk(
+        .orgin_clk(clk),
+        .reset(reset),
+        .div(16&#39;b0100_0000_0000_0000),
+        .div_clk(MEM_clk)
+    );
+    
+    clk_div getLIGHTclk(
+        .orgin_clk(clk),
+        .reset(reset),
+        .div(16&#39;b0010_0000_0000_0000),
+        .div_clk(LIGHT_clk)
+    );
+    
+    PCPUcontroller PCPUctrl(
+        .myclk(clk),
+        .button(button),
+        .reset(reset),
+        .sense(PCPU_clk)
+    );
+    
+    PCPU pcpu(
+        .clock(PCPU_clk),
+        .enable(enable),
+        .reset(reset),
+        .start(start),
+        .d_datain(d_datain),
+        .i_datain(i_datain),
+        .select_y(SW),
+        .d_addr(d_addr),
+        .d_dataout(d_dataout),
+        .d_we(d_we),
+        .i_addr(i_addr),
+        .y(y)
+    );
+    
+    I_mem i_mem(
+        .mem_clk(MEM_clk),
+        .addr(i_addr),
+        .rdata(i_datain)
+    );
+    
+    D_mem d_mem(
+        .mem_clk(MEM_clk),
+        .dwe(d_we),
+        .addr(d_addr),
+        .wdata(d_dataout),
+        .rdata(d_datain)
+    );
+    
+    light_show show_light(
+        .light_clk(LIGHT_clk),
+        .reset(reset),
+        .y(y),
+        .light(light),
+        .en(en)
+    );
+
+endmodule</code></pre>
+<h3 id="clk_div.v">clk_div.v</h3>
+<p>时钟分频模块，要是开始做CPU设计了还不会时钟分频的话，那我没话说了。不解释，贴代码。</p>
+<pre><code>`timescale 1ns / 1ps
+
+module clk_div(
+    input orgin_clk,
+    input reset,
+    input [15:0] div,
+    output reg div_clk
+    );
+    
+    reg [15:0] count;
+    
+    always@(posedge orgin_clk or posedge reset)
+    begin
+        if(reset)
+        begin
+            div_clk &lt;= 0;
+            count &lt;= 0;
+        end
+        else
+        begin
+            if(count == div)
+            begin
+                div_clk &lt;= ~div_clk;
+                count &lt;= 0;
+            end
+            else
+                count &lt;= count + 1&#39;b1;
+        end
+    end
+
+
+endmodule</code></pre>
+<h3 id="pcpucontroller.v">PCPUcontroller.v</h3>
+<p>PCPU模块的状态控制模块。因为用的button来手动控制CPU的流水线，以免时钟太快一下子就跑完了。实现的方法是用状态机，加入trap状态，实现消抖。具体想不明白的话，建议自己画一下状态机转移图，聪明的你一定会明白的。</p>
+<pre><code>`timescale 1ns / 1ps
+
+module PCPUcontroller(
+    input myclk,
+    input button,
+    input reset,
+    output reg sense
+    );
+
+    parameter STOP = 2&#39;b00, INC = 2&#39;b01, TRAP = 2&#39;b10;
+    
+    reg [1:0] state, nextstate;
+    
+    always@(posedge myclk or posedge reset)
+    begin
+        if(reset)
+            state &lt;= STOP;
+        else
+            state &lt;= nextstate;
+    end
+    
+    always@(*)
+    begin
+        case(state)
+            STOP:
+                if(button)  nextstate &lt;= INC;
+                else            nextstate &lt;= STOP;
+            INC:                nextstate &lt;= TRAP;
+            TRAP:
+                if(button)  nextstate &lt;= TRAP;
+                else            nextstate &lt;= STOP;
+            default:            nextstate &lt;= STOP;
+        endcase
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+            sense &lt;= 0;
+        else
+            case(state)
+                INC:        sense &lt;= 1&#39;b1;
+                default:    sense &lt;= 1&#39;b0;
+            endcase
+    end
+
+endmodule</code></pre>
+<h3 id="pcpu.v">PCPU.v</h3>
+<p>整个工程中最核心的部分。注释部分是冲突处理之后的。如不需要冲突处理，把注释部分指明的代码注释掉即可。对应于前图中的五级流水线，该部分的代码亦分为五部分，请自行研啃。</p>
+<pre><code>`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module PCPU(
+    input clock,
+    input enable,
+    input reset,
+    input start,
+    input [15:0] d_datain,
+    input [15:0] i_datain,
+    input [3:0] select_y,
+    output wire [7:0] d_addr,
+    output wire [15:0] d_dataout,
+    output wire d_we,
+    output wire [7:0] i_addr,
+    output reg [15:0] y
+    );
+
+    reg state;
+    reg [7:0] pc;
+    reg [15:0] id_ir;
+    reg [15:0] ex_ir, reg_A, reg_B, smdr;
+    reg [15:0] mem_ir, reg_C, smdr1; reg dw; reg flag; reg [15:0] ALUo;reg zf, nf, cf;
+    reg [15:0] wb_ir, reg_C1;
+    
+    reg [15:0] gr[0:7];
+    
+    assign d_dataout = smdr1;
+    assign d_we = dw;
+    assign d_addr = reg_C[7:0];
+    assign i_addr = pc;
+    
+    /*******CPUcontrol**********************/
+    reg nextstate;
+    
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+            state &lt;= `idle;
+        else
+            state &lt;= nextstate;
+    end
+    
+    always@(*)
+    begin
+        case(state)
+            `idle:
+                if((enable == 1&#39;b1) &amp;&amp; (start == 1&#39;b1))
+                    nextstate &lt;= `exec;
+                else
+                    nextstate &lt;= `idle;
+            `exec:
+                if((enable == 1&#39;b0) || (wb_ir[15:11] == `HALT))
+                    nextstate &lt;= `idle;
+                else
+                    nextstate &lt;= `exec;
+        endcase
+    end
+    
+    /***************************************/
+    
+    /****************IF*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            id_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            pc &lt;= 8&#39;b0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            /*************Hazard*******************/
+            if((id_ir[15:11] == `LOAD)
+             &amp;&amp;(i_datain[15:11] == `ADD) 
+             &amp;&amp;((id_ir[10:8] == i_datain[7:4]) 
+              ||(id_ir[10:8] == i_datain[3:0])))
+            begin
+                id_ir &lt;= 16&#39;bxxxx_xxxx_xxxx_xxxx;
+                pc &lt;= pc;
+            end
+            /**************************************/
+            else
+            begin
+                id_ir &lt;= i_datain;
+                if(((mem_ir[15:11] == `BZ)  &amp;&amp; (zf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BN)  &amp;&amp; (nf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BC)  &amp;&amp; (cf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNZ) &amp;&amp; (zf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNN) &amp;&amp; (nf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNZ) &amp;&amp; (cf == 1&#39;b1)))
+                    pc &lt;= reg_C[7:0];
+                else if((mem_ir[15:11] == `JUMP)
+                        ||(mem_ir[15:11] == `JMPR))
+                    pc &lt;= reg_C[7:0];
+                else
+                    pc &lt;= pc + 1&#39;b1;
+            end
+        end
+        else
+        begin
+            pc &lt;= pc;
+            id_ir &lt;= id_ir;
+        end
+    end
+    
+    /***************************************/
+    
+    /****************ID*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            ex_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_A &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_B &lt;= 16&#39;b0000_0000_0000_0000;
+            smdr &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            ex_ir &lt;= id_ir;
+            if(id_ir[15:11] == `STORE)  //for Hazard Mode
+                smdr &lt;= ALUo;
+            //reg_A
+            /********************Hazard**********************/
+            if(wb_ir[15:11] == `LOAD &amp;&amp; id_ir[7:4] == wb_ir[10:8])
+                reg_A &lt;= reg_C1;
+            else if(mem_ir[15:11] == `LOAD &amp;&amp; id_ir[7:4] == mem_ir[10:8])
+                reg_A &lt;= d_datain;
+            else if(ex_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == ex_ir[10:8])
+                reg_A &lt;= ALUo;
+            else if(mem_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == mem_ir[10:8])
+                reg_A &lt;= reg_C; 
+            else if(wb_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == wb_ir[10:8])
+                reg_A &lt;= reg_C1;
+            else
+            begin
+            /***********************************************/
+                if((id_ir[15:11] == `BZ)
+                 ||(id_ir[15:11] == `BN)
+                 ||(id_ir[15:11] == `JMPR)
+                 ||(id_ir[15:11] == `BC)
+                 ||(id_ir[15:11] == `BNZ)
+                 ||(id_ir[15:11] == `BNN)
+                 ||(id_ir[15:11] == `BNC)
+                 ||(id_ir[15:11] == `ADDI)
+                 ||(id_ir[15:11] == `SUBI)
+                 ||(id_ir[15:11] == `LDIH))
+                    reg_A &lt;= gr[(id_ir[10:8])];
+                else
+                    reg_A &lt;= gr[(id_ir[6:4])];
+            end
+            //reg_B
+            /********************Hazard*********************/
+            if(wb_ir[15:11] == `LOAD &amp;&amp; id_ir[3:0] == wb_ir[10:8])
+                reg_B &lt;= reg_C1;
+            else if(mem_ir[15:11] == `LOAD &amp;&amp; id_ir[3:0] == mem_ir[10:8])
+                reg_B &lt;= d_datain;
+            else if(ex_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == ex_ir[10:8])
+                reg_B &lt;= ALUo;
+            else if(mem_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == mem_ir[10:8])
+                reg_B &lt;= reg_C;
+            else if(wb_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == wb_ir[10:8])
+                reg_B &lt;= reg_C1;    
+            else
+            begin
+            /***********************************************/
+                if((id_ir[15:11] == `LOAD)
+                 ||(id_ir[15:11] == `SLL)
+                 ||(id_ir[15:11] == `SLA)
+                 ||(id_ir[15:11] == `SRL)
+                 ||(id_ir[15:11] == `SRA))
+                    reg_B &lt;= {12&#39;b0000_0000_0000, id_ir[3:0]};
+                else if((id_ir[15:11] == `BZ)
+                        ||(id_ir[15:11] == `BN)
+                        ||(id_ir[15:11] == `JUMP)
+                        ||(id_ir[15:11] == `JMPR)
+                        ||(id_ir[15:11] == `BC)
+                        ||(id_ir[15:11] == `BNZ)
+                        ||(id_ir[15:11] == `BNN)
+                        ||(id_ir[15:11] == `BNC)
+                        ||(id_ir[15:11] == `ADDI))
+                    reg_B &lt;= {8&#39;b0000_0000, id_ir[7:0]};
+                else if((id_ir[15:11] == `STORE))
+                begin
+                    reg_B &lt;= {12&#39;b0000_0000_0000, id_ir[3:0]};
+                    //smdr &lt;= gr[(id_ir[10:8])];    //for not Hazard
+                end
+                else if(id_ir[15:11] == `LDIH)
+                    reg_B &lt;= {id_ir[7:0], 8&#39;b0000_0000};
+                else
+                    reg_B &lt;= gr[id_ir[2:0]];
+            end
+        end
+        else
+        begin
+            ex_ir &lt;= ex_ir;
+            reg_A &lt;= reg_A;
+            reg_B &lt;= reg_B;
+            smdr &lt;= smdr;
+        end
+    end
+    /***************************************/
+    
+    /****************EX*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            mem_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_C &lt;= 16&#39;b0000_0000_0000_0000;
+            smdr1 &lt;= 16&#39;b0000_0000_0000_0000;
+            zf &lt;= 1&#39;b0;
+            nf &lt;= 1&#39;b0;
+            cf &lt;= 1&#39;b0;
+            dw &lt;= 1&#39;b0;
+        end
+        else if(state == `exec)
+        begin
+            mem_ir &lt;= ex_ir;
+            reg_C &lt;= ALUo;
+            cf &lt;= cf_temp;
+            if((ex_ir[15:11] == `ADD)
+             ||(ex_ir[15:11] == `CMP)
+             ||(ex_ir[15:11] == `ADDI)
+             ||(ex_ir[15:11] == `SUB)
+             ||(ex_ir[15:11] == `SUBI)
+             ||(ex_ir[15:11] == `LDIH)
+             ||(ex_ir[15:11] == `SLL)
+             ||(ex_ir[15:11] == `SRL)
+             ||(ex_ir[15:11] == `SLA)
+             ||(ex_ir[15:11] == `SRA)
+             ||(ex_ir[15:11] == `ADDC)
+             ||(ex_ir[15:11] == `SUBC))
+            begin
+                if(ALUo == 16&#39;b0000_0000_0000_0000)
+                    zf &lt;= 1&#39;b1;
+                else
+                    zf &lt;= 1&#39;b0;
+                
+                if(ALUo[15] == 1&#39;b1)
+                    nf &lt;= 1&#39;b1;
+                else
+                    nf &lt;= 1&#39;b0;
+            end
+            else if(ex_ir[15:11] == `STORE)
+            begin
+                dw &lt;= 1&#39;b1;
+                smdr1 &lt;= smdr;
+            end
+        end
+        else
+        begin
+            reg_C &lt;= reg_C;
+            smdr1 &lt;= smdr1;
+            dw &lt;= dw;
+        end
+    end
+    //ALU
+    reg cf_temp;
+    always@(*)
+    begin
+        if(state == `exec)
+        begin
+            if(reset)
+            begin
+                ALUo &lt;= 16&#39;b0000_0000_0000_0000;
+                cf_temp &lt;= 0;
+            end
+            else
+                case(ex_ir[15:11])
+                    `NOP:       {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                    `HALT:  {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                    `AND:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &amp; reg_B};
+                    `OR:        {cf_temp, ALUo} &lt;= {cf_temp, reg_A | reg_B};
+                    `XOR:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A ^ reg_B};
+                    `SLL:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &lt;&lt; reg_B};
+                    `SRL:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &gt;&gt; reg_B};
+                    `SLA:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &lt;&lt;&lt; reg_B};
+                    `SRA:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &gt;&gt;&gt; reg_B};
+                    `JUMP:  {cf_temp, ALUo} &lt;= {cf_temp, reg_B};
+                    `LDIH:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADD:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADDI:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADDC:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B} + cf;
+                    `SUB:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `SUBI:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `SUBC:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B} - cf;
+                    `CMP:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `LOAD:  begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `STORE: begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `JMPR:  begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BZ:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNZ:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BN:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNN:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BC:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNC:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    default:    {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                endcase
+        end
+    end
+    /***************************************/
+    
+    /***************MEM*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            reg_C1 &lt;= 16&#39;b0000_0000_0000_0000;
+            wb_ir &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            wb_ir &lt;= mem_ir;
+            if(mem_ir[15:11] == `LOAD)
+                reg_C1 &lt;= d_datain;
+            else
+                reg_C1 &lt;= reg_C;
+        end
+    end
+    /***************************************/
+    
+    /****************WB********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            gr[0] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[1] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[2] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[3] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[4] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[5] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[6] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[7] &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            if((wb_ir[15:11] == `LOAD)
+             ||(wb_ir[15:11] == `ADD)
+             ||(wb_ir[15:11] == `ADDI)
+             ||(wb_ir[15:11] == `ADDC)
+             ||(wb_ir[15:11] == `SUB)
+             ||(wb_ir[15:11] == `SUBI)
+             ||(wb_ir[15:11] == `SUBC)
+             ||(wb_ir[15:11] == `AND)
+             ||(wb_ir[15:11] == `OR)
+             ||(wb_ir[15:11] == `XOR)
+             ||(wb_ir[15:11] == `SLL)
+             ||(wb_ir[15:11] == `SRL)
+             ||(wb_ir[15:11] == `SLA)
+             ||(wb_ir[15:11] == `SRA)
+             ||(wb_ir[15:11] == `LDIH))
+                gr[wb_ir[10:8]] &lt;= reg_C1;
+        end
+        else
+        begin
+        
+        end
+    end
+    /***************************************/
+    
+    /**************select Y*****************/
+    always@(*)
+    begin
+        case(select_y)
+            4&#39;b0000:    y &lt;= reg_C;
+            4&#39;b0001:    y &lt;= reg_A;
+            4&#39;b0010:    y &lt;= reg_B;
+            4&#39;b0011:    y &lt;= {pc, 8&#39;b0000_0000};
+            4&#39;b0100:    y &lt;= id_ir;
+            4&#39;b0101:    y &lt;= smdr;
+            4&#39;b0110:    y &lt;= reg_C1;
+            4&#39;b0111:    y &lt;= smdr1;
+            4&#39;b1000:    y &lt;= ex_ir;
+            4&#39;b1001:    y &lt;= mem_ir;
+            4&#39;b1010:    y &lt;= wb_ir;
+            default: y &lt;= reg_C;
+        endcase
+    end
+    /***************************************/
+endmodule</code></pre>
+<h3 id="i_mem.v">I_mem.v</h3>
+<p>指令存储区域。把指令写在这一部分，即可让CPU跑指定的指令。</p>
+<pre><code>`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module I_mem(
+    input mem_clk,
+    input [7:0] addr,
+    output wire [15:0] rdata
+    );
+
+    reg [15:0] i_mem [255:0];
+    assign rdata = i_mem[addr];
+    
+    always@(posedge mem_clk)
+    begin
+        case(addr)
+            0:      i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b1010, 4&#39;b1011};
+            1:      i_mem[addr] &lt;= {`LDIH, `gr2, 4&#39;b0011, 4&#39;b1100};
+            2:      i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            3:      i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0000};
+            4:      i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b0001, 4&#39;b0001};
+            5:      i_mem[addr] &lt;= {`LDIH, `gr2, 4&#39;b0001, 4&#39;b0001};
+            6:      i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            7:      i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0001};
+            8:      i_mem[addr] &lt;= {`LOAD, `gr1, 1&#39;b0, `gr0, 4&#39;b0000};
+            9:      i_mem[addr] &lt;= {`LOAD, `gr2, 1&#39;b0, `gr0, 4&#39;b0001};
+            10: i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            11: i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0001};
+            12: i_mem[addr] &lt;= {`JUMP, 4&#39;b0000, 4&#39;b0010, 4&#39;b1000};
+            13: i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b1010, 4&#39;b1011};
+            40: i_mem[addr] &lt;= {`HALT, 11&#39;b000_0000_0000};
+            default:        i_mem[addr] &lt;= {`NOP, 11&#39;b000_0000_0000};
+        endcase
+    end
+
+endmodule</code></pre>
+<h3 id="d_mem.v">D_mem.v</h3>
+<p>数据存储区域。结构简单，根据dwe信号来决定是读取还是写入。</p>
+<pre><code>`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module D_mem(
+    input mem_clk,
+    input dwe,
+    input [7:0] addr,
+    input [15:0] wdata,
+    output wire [15:0] rdata
+    );
+    
+    reg [15:0] d_mem [255:0];
+    assign rdata = d_mem[addr];
+    
+    always@(posedge mem_clk)
+    begin
+            if(dwe)
+                d_mem[addr] &lt;= wdata;
+    end
+
+
+endmodule</code></pre>
+<h3 id="light_show.v">light_show.v</h3>
+<p>七段译码管显示模块。</p>
+<pre><code>`timescale 1ns / 1ps
+
+module light_show(
+    input light_clk,
+    input reset,
+    input [15:0] y,
+    output reg [6:0] light,
+    output reg [3:0] en
+    );
+
+    reg [1:0] dp;
+    reg [3:0] four;
+
+    always@(posedge light_clk or posedge reset)
+    begin
+        if(reset)
+            dp &lt;= 0;
+        else
+        begin
+            dp &lt;= dp + 1&#39;b1;
+        end
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+        begin
+            four &lt;= 0;
+            en &lt;= 0;
+        end
+        else
+        begin
+            case(dp)
+                0:          begin four &lt;= y[3:0]; en &lt;= 4&#39;b1110; end
+                1:          begin four &lt;= y[7:4]; en &lt;= 4&#39;b1101; end
+                2:          begin four &lt;= y[11:8]; en &lt;= 4&#39;b1011; end
+                3:          begin four &lt;= y[15:12]; en &lt;= 4&#39;b0111; end
+                default:    begin four &lt;= 0; en &lt;= 0; end
+            endcase
+        end
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+        begin
+            light &lt;= 7&#39;b0001000;
+        end
+        else
+        begin
+            case(four)
+                0:              light &lt;= 7&#39;b0000001;
+                1:              light &lt;= 7&#39;b1001111;
+                2:              light &lt;= 7&#39;b0010010;
+                3:              light &lt;= 7&#39;b0000110;
+                4:              light &lt;= 7&#39;b1001100;
+                5:              light &lt;= 7&#39;b0100100;
+                6:              light &lt;= 7&#39;b0100000;
+                7:              light &lt;= 7&#39;b0001111;
+                8:              light &lt;= 7&#39;b0000000;
+                9:              light &lt;= 7&#39;b0000100;
+                4&#39;b1010:        light &lt;= 7&#39;b0001000;
+                4&#39;b1011:        light &lt;= 7&#39;b1100000;
+                4&#39;b1100:        light &lt;= 7&#39;b0110001;
+                4&#39;b1101:        light &lt;= 7&#39;b1000010;
+                4&#39;b1110:        light &lt;= 7&#39;b0110000;
+                4&#39;b1111:        light &lt;= 7&#39;b0111000;
+                default:        light &lt;= 7&#39;b0000001;
+            endcase
+        end
+    end
+
+endmodule</code></pre>
+<h3 id="vtf_cpu.v">VTF_CPU.v</h3>
+<p>仿真测试文件。</p>
+<pre><code>`timescale 1ns / 1ps
+
+module VTF_CPU;
+
+    // Inputs
+    reg clk;
+    reg enable;
+    reg reset;
+    reg [3:0] SW;
+    reg start;
+    reg button;
+
+    // Outputs
+    wire [6:0] light;
+    wire [3:0] en;
+
+    // Instantiate the Unit Under Test (UUT)
+    CPU uut (
+        .clk(clk), 
+        .enable(enable), 
+        .reset(reset), 
+        .SW(SW), 
+        .start(start), 
+        .button(button), 
+        .light(light), 
+        .en(en)
+    );
+
+    initial begin
+        // Initialize Inputs
+        clk = 0;
+        enable = 0;
+        reset = 0;
+        SW = 0;
+        start = 0;
+        button = 0;
+
+        // Wait 100 ns for global reset to finish
+        #100;
+        
+        $display(&quot;pc:     id_ir      :reg_A:reg_B:reg_C:da:dd:  :w:reC1:gr1 :gr2 : gr3&quot;);
+        $monitor(&quot;%h:%b:%h:%h:%h:%h:%h:%b:%h:%h:%h:%h&quot;, 
+            uut.pcpu.pc, uut.pcpu.id_ir, uut.pcpu.reg_A, uut.pcpu.reg_B, uut.pcpu.reg_C,
+            uut.d_addr, uut.d_dataout, uut.d_we, uut.pcpu.reg_C1, uut.pcpu.gr[1], uut.pcpu.gr[2], uut.pcpu.gr[3]);
+            
+      enable &lt;= 0; start &lt;= 0;
+        // Add stimulus here
+        #10 reset &lt;= 1;
+        #10 reset &lt;= 0;
+        #10 enable &lt;= 1;
+        #10 start &lt;=1;
+        //#10 start &lt;= 0;
+        #100;
+    end
+   always #20 button = ~button;
+    always #5 clk = ~clk;
+endmodule
+</code></pre>
+</div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+		</div>
+		<div class = "postDesc">posted @ <span id="post-date">2015-02-15 14:23</span> <a href='http://www.cnblogs.com/wsine/'>Wsine</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="https://i.cnblogs.com/EditPosts.aspx?postid=4292869" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(4292869);return false;">收藏</a></div>
+	</div>
+	<script src="//common.cnblogs.com/highlight/9.1.0/highlight.min.js?id=20160127"></script><script>markdown_highlight();</script><script type="text/javascript">var allowComments=true,cb_blogId=208078,cb_entryId=4292869,cb_blogApp=currentBlogApp,cb_blogUserGuid='e3665eb4-be7f-e411-b908-9dcfd8948a71',cb_entryCreatedDate='2015/2/15 14:23:00';loadViewCount(cb_entryId);</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id='comment_form' class='commentform'>
+<a name='commentform'></a>
+<div id='divCommentShow'></div>
+<div id='comment_nav'><span id='span_refresh_tips'></span><a href='javascript:void(0);' onclick='return RefreshCommentList();' id='lnk_RefreshComments' runat='server' clientidmode='Static'>刷新评论</a><a href='#' onclick='return RefreshPage();'>刷新页面</a><a href='#top'>返回顶部</a></div>
+<div id='comment_form_container'></div>
+<div class='ad_text_commentbox' id='ad_text_under_commentbox'></div>
+<div id='ad_t2'></div>
+<div id='opt_under_post'></div>
+<div id='cnblogs_c1' class='c_ad_block'></div>
+<div id='under_post_news'></div>
+<div id='cnblogs_c2' class='c_ad_block'></div>
+<div id='under_post_kb'></div>
+<div id='HistoryToday' class='c_ad_block'></div>
+<script type='text/javascript'>
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverAdT2();
+    deliverAdC1();
+    deliverAdC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
+</script>
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright &copy;2017 Wsine
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+<!--PageEndHtml Block Begin-->
+<!-- 渲染代码高亮使用js代码 -->
+<!-- <script type="text/javascript">
+	SyntaxHighlighter.all()
+</script> -->
+
+<!-- 渲染流程图使用js代码 -->
+<script type="text/javascript">
+	var chart;
+	var preAll = document.getElementsByTagName('pre');
+	for (var i = 0; i < preAll.length; i++) {
+		if (preAll[i].className == 'flow') {
+			var preFLow = preAll[i].getElementsByTagName('code');
+			var flowCode = preFLow[0].innerHTML;
+			flowCode = flowCode.replace(new RegExp("&gt;", "gm"), ">");
+			var flowChartDiagram = 'flowChartDiagram' + i;
+			preAll[i].insertAdjacentHTML("afterEnd", "<div id=\"" + flowChartDiagram + "\" style=\"max-width: 100%; overflow: scroll;\"></div>");
+			chart = flowchart.parse(flowCode);
+			chart.drawSVG(flowChartDiagram);
+			var flowChartSVG = document.getElementById(flowChartDiagram).firstChild;
+			flowChartSVG.style.overflow = "scroll";
+			preAll[i].style.display = "none";
+		}
+	};
+</script>
+<!--PageEndHtml Block End-->
+</body>
+</html>

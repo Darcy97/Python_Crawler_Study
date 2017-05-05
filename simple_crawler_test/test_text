@@ -1,0 +1,809 @@
+`ifndef HEADFILE_H_
+
+//State for CPU
+`define idle        1&#39;b0
+`define exec        1&#39;b1
+
+//Data transfer &amp; Arithmetic
+`define  NOP        5&#39;b00000
+`define  HALT       5&#39;b00001
+`define  LOAD       5&#39;b00010
+`define  STORE      5&#39;b00011
+`define  LDIH       5&#39;b10000
+`define  ADD        5&#39;b01000
+`define ADDI        5&#39;b01001
+`define ADDC        5&#39;b10001
+`define CMP     5&#39;b01100
+
+//Logical / shift
+`define AND     5&#39;b01101
+`define SLL     5&#39;b00100
+`define SLA     5&#39;b00101
+
+//Control
+`define JUMP        5&#39;b11000
+`define JMPR        5&#39;b11001
+`define BZ          5&#39;b11010
+`define BNZ     5&#39;b11011
+`define BN          5&#39;b11100
+`define BC          5&#39;b11110
+
+//Add by myself
+`define SUB     5&#39;b01010
+`define     SUBI    5&#39;b01011
+`define     SUBC    5&#39;b10010
+`define     OR      5&#39;b01110
+`define     XOR     5&#39;b01111
+`define     SRL     5&#39;b00110
+`define     SRA     5&#39;b00111
+`define     BNN     5&#39;b11101
+`define     BNC     5&#39;b11111
+
+//gr
+`define gr0 3&#39;b000
+`define gr1 3&#39;b001
+`define gr2 3&#39;b010
+`define gr3 3&#39;b011
+
+`endif
+
+
+
+`timescale 1ns / 1ps
+
+module CPU(
+    input clk,
+    input enable,
+    input reset,
+    input [3:0] SW,
+    input start,
+    input button,
+    output [6:0] light,
+    output [3:0] en
+    );
+
+    wire PCPU_clk;
+    wire MEM_clk;
+    wire LIGHT_clk;
+    
+    wire [15:0] d_datain;
+    wire [15:0] i_datain;
+    wire [3:0] select_y;
+    wire [7:0] d_addr;
+    wire [15:0] d_dataout;
+    wire d_we;
+    wire [7:0] i_addr;
+    wire [15:0] y;
+    
+    clk_div getMEMclk(
+        .orgin_clk(clk),
+        .reset(reset),
+        .div(16&#39;b0100_0000_0000_0000),
+        .div_clk(MEM_clk)
+    );
+    
+    clk_div getLIGHTclk(
+        .orgin_clk(clk),
+        .reset(reset),
+        .div(16&#39;b0010_0000_0000_0000),
+        .div_clk(LIGHT_clk)
+    );
+    
+    PCPUcontroller PCPUctrl(
+        .myclk(clk),
+        .button(button),
+        .reset(reset),
+        .sense(PCPU_clk)
+    );
+    
+    PCPU pcpu(
+        .clock(PCPU_clk),
+        .enable(enable),
+        .reset(reset),
+        .start(start),
+        .d_datain(d_datain),
+        .i_datain(i_datain),
+        .select_y(SW),
+        .d_addr(d_addr),
+        .d_dataout(d_dataout),
+        .d_we(d_we),
+        .i_addr(i_addr),
+        .y(y)
+    );
+    
+    I_mem i_mem(
+        .mem_clk(MEM_clk),
+        .addr(i_addr),
+        .rdata(i_datain)
+    );
+    
+    D_mem d_mem(
+        .mem_clk(MEM_clk),
+        .dwe(d_we),
+        .addr(d_addr),
+        .wdata(d_dataout),
+        .rdata(d_datain)
+    );
+    
+    light_show show_light(
+        .light_clk(LIGHT_clk),
+        .reset(reset),
+        .y(y),
+        .light(light),
+        .en(en)
+    );
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+
+module clk_div(
+    input orgin_clk,
+    input reset,
+    input [15:0] div,
+    output reg div_clk
+    );
+    
+    reg [15:0] count;
+    
+    always@(posedge orgin_clk or posedge reset)
+    begin
+        if(reset)
+        begin
+            div_clk &lt;= 0;
+            count &lt;= 0;
+        end
+        else
+        begin
+            if(count == div)
+            begin
+                div_clk &lt;= ~div_clk;
+                count &lt;= 0;
+            end
+            else
+                count &lt;= count + 1&#39;b1;
+        end
+    end
+
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+
+module PCPUcontroller(
+    input myclk,
+    input button,
+    input reset,
+    output reg sense
+    );
+
+    parameter STOP = 2&#39;b00, INC = 2&#39;b01, TRAP = 2&#39;b10;
+    
+    reg [1:0] state, nextstate;
+    
+    always@(posedge myclk or posedge reset)
+    begin
+        if(reset)
+            state &lt;= STOP;
+        else
+            state &lt;= nextstate;
+    end
+    
+    always@(*)
+    begin
+        case(state)
+            STOP:
+                if(button)  nextstate &lt;= INC;
+                else            nextstate &lt;= STOP;
+            INC:                nextstate &lt;= TRAP;
+            TRAP:
+                if(button)  nextstate &lt;= TRAP;
+                else            nextstate &lt;= STOP;
+            default:            nextstate &lt;= STOP;
+        endcase
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+            sense &lt;= 0;
+        else
+            case(state)
+                INC:        sense &lt;= 1&#39;b1;
+                default:    sense &lt;= 1&#39;b0;
+            endcase
+    end
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module PCPU(
+    input clock,
+    input enable,
+    input reset,
+    input start,
+    input [15:0] d_datain,
+    input [15:0] i_datain,
+    input [3:0] select_y,
+    output wire [7:0] d_addr,
+    output wire [15:0] d_dataout,
+    output wire d_we,
+    output wire [7:0] i_addr,
+    output reg [15:0] y
+    );
+
+    reg state;
+    reg [7:0] pc;
+    reg [15:0] id_ir;
+    reg [15:0] ex_ir, reg_A, reg_B, smdr;
+    reg [15:0] mem_ir, reg_C, smdr1; reg dw; reg flag; reg [15:0] ALUo;reg zf, nf, cf;
+    reg [15:0] wb_ir, reg_C1;
+    
+    reg [15:0] gr[0:7];
+    
+    assign d_dataout = smdr1;
+    assign d_we = dw;
+    assign d_addr = reg_C[7:0];
+    assign i_addr = pc;
+    
+    /*******CPUcontrol**********************/
+    reg nextstate;
+    
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+            state &lt;= `idle;
+        else
+            state &lt;= nextstate;
+    end
+    
+    always@(*)
+    begin
+        case(state)
+            `idle:
+                if((enable == 1&#39;b1) &amp;&amp; (start == 1&#39;b1))
+                    nextstate &lt;= `exec;
+                else
+                    nextstate &lt;= `idle;
+            `exec:
+                if((enable == 1&#39;b0) || (wb_ir[15:11] == `HALT))
+                    nextstate &lt;= `idle;
+                else
+                    nextstate &lt;= `exec;
+        endcase
+    end
+    
+    /***************************************/
+    
+    /****************IF*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            id_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            pc &lt;= 8&#39;b0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            /*************Hazard*******************/
+            if((id_ir[15:11] == `LOAD)
+             &amp;&amp;(i_datain[15:11] == `ADD) 
+             &amp;&amp;((id_ir[10:8] == i_datain[7:4]) 
+              ||(id_ir[10:8] == i_datain[3:0])))
+            begin
+                id_ir &lt;= 16&#39;bxxxx_xxxx_xxxx_xxxx;
+                pc &lt;= pc;
+            end
+            /**************************************/
+            else
+            begin
+                id_ir &lt;= i_datain;
+                if(((mem_ir[15:11] == `BZ)  &amp;&amp; (zf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BN)  &amp;&amp; (nf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BC)  &amp;&amp; (cf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNZ) &amp;&amp; (zf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNN) &amp;&amp; (nf == 1&#39;b1))
+                 ||((mem_ir[15:11] == `BNZ) &amp;&amp; (cf == 1&#39;b1)))
+                    pc &lt;= reg_C[7:0];
+                else if((mem_ir[15:11] == `JUMP)
+                        ||(mem_ir[15:11] == `JMPR))
+                    pc &lt;= reg_C[7:0];
+                else
+                    pc &lt;= pc + 1&#39;b1;
+            end
+        end
+        else
+        begin
+            pc &lt;= pc;
+            id_ir &lt;= id_ir;
+        end
+    end
+    
+    /***************************************/
+    
+    /****************ID*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            ex_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_A &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_B &lt;= 16&#39;b0000_0000_0000_0000;
+            smdr &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            ex_ir &lt;= id_ir;
+            if(id_ir[15:11] == `STORE)  //for Hazard Mode
+                smdr &lt;= ALUo;
+            //reg_A
+            /********************Hazard**********************/
+            if(wb_ir[15:11] == `LOAD &amp;&amp; id_ir[7:4] == wb_ir[10:8])
+                reg_A &lt;= reg_C1;
+            else if(mem_ir[15:11] == `LOAD &amp;&amp; id_ir[7:4] == mem_ir[10:8])
+                reg_A &lt;= d_datain;
+            else if(ex_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == ex_ir[10:8])
+                reg_A &lt;= ALUo;
+            else if(mem_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == mem_ir[10:8])
+                reg_A &lt;= reg_C; 
+            else if(wb_ir[15:11] != `LOAD &amp;&amp; id_ir[7:4] == wb_ir[10:8])
+                reg_A &lt;= reg_C1;
+            else
+            begin
+            /***********************************************/
+                if((id_ir[15:11] == `BZ)
+                 ||(id_ir[15:11] == `BN)
+                 ||(id_ir[15:11] == `JMPR)
+                 ||(id_ir[15:11] == `BC)
+                 ||(id_ir[15:11] == `BNZ)
+                 ||(id_ir[15:11] == `BNN)
+                 ||(id_ir[15:11] == `BNC)
+                 ||(id_ir[15:11] == `ADDI)
+                 ||(id_ir[15:11] == `SUBI)
+                 ||(id_ir[15:11] == `LDIH))
+                    reg_A &lt;= gr[(id_ir[10:8])];
+                else
+                    reg_A &lt;= gr[(id_ir[6:4])];
+            end
+            //reg_B
+            /********************Hazard*********************/
+            if(wb_ir[15:11] == `LOAD &amp;&amp; id_ir[3:0] == wb_ir[10:8])
+                reg_B &lt;= reg_C1;
+            else if(mem_ir[15:11] == `LOAD &amp;&amp; id_ir[3:0] == mem_ir[10:8])
+                reg_B &lt;= d_datain;
+            else if(ex_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == ex_ir[10:8])
+                reg_B &lt;= ALUo;
+            else if(mem_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == mem_ir[10:8])
+                reg_B &lt;= reg_C;
+            else if(wb_ir[15:11] != `LOAD &amp;&amp; id_ir[3:0] == wb_ir[10:8])
+                reg_B &lt;= reg_C1;    
+            else
+            begin
+            /***********************************************/
+                if((id_ir[15:11] == `LOAD)
+                 ||(id_ir[15:11] == `SLL)
+                 ||(id_ir[15:11] == `SLA)
+                 ||(id_ir[15:11] == `SRL)
+                 ||(id_ir[15:11] == `SRA))
+                    reg_B &lt;= {12&#39;b0000_0000_0000, id_ir[3:0]};
+                else if((id_ir[15:11] == `BZ)
+                        ||(id_ir[15:11] == `BN)
+                        ||(id_ir[15:11] == `JUMP)
+                        ||(id_ir[15:11] == `JMPR)
+                        ||(id_ir[15:11] == `BC)
+                        ||(id_ir[15:11] == `BNZ)
+                        ||(id_ir[15:11] == `BNN)
+                        ||(id_ir[15:11] == `BNC)
+                        ||(id_ir[15:11] == `ADDI))
+                    reg_B &lt;= {8&#39;b0000_0000, id_ir[7:0]};
+                else if((id_ir[15:11] == `STORE))
+                begin
+                    reg_B &lt;= {12&#39;b0000_0000_0000, id_ir[3:0]};
+                    //smdr &lt;= gr[(id_ir[10:8])];    //for not Hazard
+                end
+                else if(id_ir[15:11] == `LDIH)
+                    reg_B &lt;= {id_ir[7:0], 8&#39;b0000_0000};
+                else
+                    reg_B &lt;= gr[id_ir[2:0]];
+            end
+        end
+        else
+        begin
+            ex_ir &lt;= ex_ir;
+            reg_A &lt;= reg_A;
+            reg_B &lt;= reg_B;
+            smdr &lt;= smdr;
+        end
+    end
+    /***************************************/
+    
+    /****************EX*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            mem_ir &lt;= 16&#39;b0000_0000_0000_0000;
+            reg_C &lt;= 16&#39;b0000_0000_0000_0000;
+            smdr1 &lt;= 16&#39;b0000_0000_0000_0000;
+            zf &lt;= 1&#39;b0;
+            nf &lt;= 1&#39;b0;
+            cf &lt;= 1&#39;b0;
+            dw &lt;= 1&#39;b0;
+        end
+        else if(state == `exec)
+        begin
+            mem_ir &lt;= ex_ir;
+            reg_C &lt;= ALUo;
+            cf &lt;= cf_temp;
+            if((ex_ir[15:11] == `ADD)
+             ||(ex_ir[15:11] == `CMP)
+             ||(ex_ir[15:11] == `ADDI)
+             ||(ex_ir[15:11] == `SUB)
+             ||(ex_ir[15:11] == `SUBI)
+             ||(ex_ir[15:11] == `LDIH)
+             ||(ex_ir[15:11] == `SLL)
+             ||(ex_ir[15:11] == `SRL)
+             ||(ex_ir[15:11] == `SLA)
+             ||(ex_ir[15:11] == `SRA)
+             ||(ex_ir[15:11] == `ADDC)
+             ||(ex_ir[15:11] == `SUBC))
+            begin
+                if(ALUo == 16&#39;b0000_0000_0000_0000)
+                    zf &lt;= 1&#39;b1;
+                else
+                    zf &lt;= 1&#39;b0;
+                
+                if(ALUo[15] == 1&#39;b1)
+                    nf &lt;= 1&#39;b1;
+                else
+                    nf &lt;= 1&#39;b0;
+            end
+            else if(ex_ir[15:11] == `STORE)
+            begin
+                dw &lt;= 1&#39;b1;
+                smdr1 &lt;= smdr;
+            end
+        end
+        else
+        begin
+            reg_C &lt;= reg_C;
+            smdr1 &lt;= smdr1;
+            dw &lt;= dw;
+        end
+    end
+    //ALU
+    reg cf_temp;
+    always@(*)
+    begin
+        if(state == `exec)
+        begin
+            if(reset)
+            begin
+                ALUo &lt;= 16&#39;b0000_0000_0000_0000;
+                cf_temp &lt;= 0;
+            end
+            else
+                case(ex_ir[15:11])
+                    `NOP:       {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                    `HALT:  {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                    `AND:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &amp; reg_B};
+                    `OR:        {cf_temp, ALUo} &lt;= {cf_temp, reg_A | reg_B};
+                    `XOR:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A ^ reg_B};
+                    `SLL:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &lt;&lt; reg_B};
+                    `SRL:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &gt;&gt; reg_B};
+                    `SLA:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &lt;&lt;&lt; reg_B};
+                    `SRA:       {cf_temp, ALUo} &lt;= {cf_temp, reg_A &gt;&gt;&gt; reg_B};
+                    `JUMP:  {cf_temp, ALUo} &lt;= {cf_temp, reg_B};
+                    `LDIH:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADD:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADDI:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B};
+                    `ADDC:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} + {1&#39;b0 + reg_B} + cf;
+                    `SUB:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `SUBI:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `SUBC:  {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B} - cf;
+                    `CMP:       {cf_temp, ALUo} &lt;= {1&#39;b0 + reg_A} - {1&#39;b0 + reg_B};
+                    `LOAD:  begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `STORE: begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `JMPR:  begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BZ:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNZ:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BN:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNN:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BC:        begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    `BNC:       begin ALUo &lt;= reg_A + reg_B; cf_temp &lt;= cf_temp; end
+                    default:    {cf_temp, ALUo} &lt;= {cf_temp, ALUo};
+                endcase
+        end
+    end
+    /***************************************/
+    
+    /***************MEM*********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            reg_C1 &lt;= 16&#39;b0000_0000_0000_0000;
+            wb_ir &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            wb_ir &lt;= mem_ir;
+            if(mem_ir[15:11] == `LOAD)
+                reg_C1 &lt;= d_datain;
+            else
+                reg_C1 &lt;= reg_C;
+        end
+    end
+    /***************************************/
+    
+    /****************WB********************/
+    always@(posedge clock or posedge reset)
+    begin
+        if(reset)
+        begin
+            gr[0] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[1] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[2] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[3] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[4] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[5] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[6] &lt;= 16&#39;b0000_0000_0000_0000;
+            gr[7] &lt;= 16&#39;b0000_0000_0000_0000;
+        end
+        else if(state == `exec)
+        begin
+            if((wb_ir[15:11] == `LOAD)
+             ||(wb_ir[15:11] == `ADD)
+             ||(wb_ir[15:11] == `ADDI)
+             ||(wb_ir[15:11] == `ADDC)
+             ||(wb_ir[15:11] == `SUB)
+             ||(wb_ir[15:11] == `SUBI)
+             ||(wb_ir[15:11] == `SUBC)
+             ||(wb_ir[15:11] == `AND)
+             ||(wb_ir[15:11] == `OR)
+             ||(wb_ir[15:11] == `XOR)
+             ||(wb_ir[15:11] == `SLL)
+             ||(wb_ir[15:11] == `SRL)
+             ||(wb_ir[15:11] == `SLA)
+             ||(wb_ir[15:11] == `SRA)
+             ||(wb_ir[15:11] == `LDIH))
+                gr[wb_ir[10:8]] &lt;= reg_C1;
+        end
+        else
+        begin
+        
+        end
+    end
+    /***************************************/
+    
+    /**************select Y*****************/
+    always@(*)
+    begin
+        case(select_y)
+            4&#39;b0000:    y &lt;= reg_C;
+            4&#39;b0001:    y &lt;= reg_A;
+            4&#39;b0010:    y &lt;= reg_B;
+            4&#39;b0011:    y &lt;= {pc, 8&#39;b0000_0000};
+            4&#39;b0100:    y &lt;= id_ir;
+            4&#39;b0101:    y &lt;= smdr;
+            4&#39;b0110:    y &lt;= reg_C1;
+            4&#39;b0111:    y &lt;= smdr1;
+            4&#39;b1000:    y &lt;= ex_ir;
+            4&#39;b1001:    y &lt;= mem_ir;
+            4&#39;b1010:    y &lt;= wb_ir;
+            default: y &lt;= reg_C;
+        endcase
+    end
+    /***************************************/
+endmodule
+
+
+
+`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module I_mem(
+    input mem_clk,
+    input [7:0] addr,
+    output wire [15:0] rdata
+    );
+
+    reg [15:0] i_mem [255:0];
+    assign rdata = i_mem[addr];
+    
+    always@(posedge mem_clk)
+    begin
+        case(addr)
+            0:      i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b1010, 4&#39;b1011};
+            1:      i_mem[addr] &lt;= {`LDIH, `gr2, 4&#39;b0011, 4&#39;b1100};
+            2:      i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            3:      i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0000};
+            4:      i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b0001, 4&#39;b0001};
+            5:      i_mem[addr] &lt;= {`LDIH, `gr2, 4&#39;b0001, 4&#39;b0001};
+            6:      i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            7:      i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0001};
+            8:      i_mem[addr] &lt;= {`LOAD, `gr1, 1&#39;b0, `gr0, 4&#39;b0000};
+            9:      i_mem[addr] &lt;= {`LOAD, `gr2, 1&#39;b0, `gr0, 4&#39;b0001};
+            10: i_mem[addr] &lt;= {`ADD, `gr3, 1&#39;b0, `gr1, 1&#39;b0, `gr2};
+            11: i_mem[addr] &lt;= {`STORE, `gr3, 1&#39;b0, `gr0, 4&#39;b0001};
+            12: i_mem[addr] &lt;= {`JUMP, 4&#39;b0000, 4&#39;b0010, 4&#39;b1000};
+            13: i_mem[addr] &lt;= {`ADDI, `gr1, 4&#39;b1010, 4&#39;b1011};
+            40: i_mem[addr] &lt;= {`HALT, 11&#39;b000_0000_0000};
+            default:        i_mem[addr] &lt;= {`NOP, 11&#39;b000_0000_0000};
+        endcase
+    end
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+`include&quot;headfile.v&quot;
+
+module D_mem(
+    input mem_clk,
+    input dwe,
+    input [7:0] addr,
+    input [15:0] wdata,
+    output wire [15:0] rdata
+    );
+    
+    reg [15:0] d_mem [255:0];
+    assign rdata = d_mem[addr];
+    
+    always@(posedge mem_clk)
+    begin
+            if(dwe)
+                d_mem[addr] &lt;= wdata;
+    end
+
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+
+module light_show(
+    input light_clk,
+    input reset,
+    input [15:0] y,
+    output reg [6:0] light,
+    output reg [3:0] en
+    );
+
+    reg [1:0] dp;
+    reg [3:0] four;
+
+    always@(posedge light_clk or posedge reset)
+    begin
+        if(reset)
+            dp &lt;= 0;
+        else
+        begin
+            dp &lt;= dp + 1&#39;b1;
+        end
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+        begin
+            four &lt;= 0;
+            en &lt;= 0;
+        end
+        else
+        begin
+            case(dp)
+                0:          begin four &lt;= y[3:0]; en &lt;= 4&#39;b1110; end
+                1:          begin four &lt;= y[7:4]; en &lt;= 4&#39;b1101; end
+                2:          begin four &lt;= y[11:8]; en &lt;= 4&#39;b1011; end
+                3:          begin four &lt;= y[15:12]; en &lt;= 4&#39;b0111; end
+                default:    begin four &lt;= 0; en &lt;= 0; end
+            endcase
+        end
+    end
+    
+    always@(*)
+    begin
+        if(reset)
+        begin
+            light &lt;= 7&#39;b0001000;
+        end
+        else
+        begin
+            case(four)
+                0:              light &lt;= 7&#39;b0000001;
+                1:              light &lt;= 7&#39;b1001111;
+                2:              light &lt;= 7&#39;b0010010;
+                3:              light &lt;= 7&#39;b0000110;
+                4:              light &lt;= 7&#39;b1001100;
+                5:              light &lt;= 7&#39;b0100100;
+                6:              light &lt;= 7&#39;b0100000;
+                7:              light &lt;= 7&#39;b0001111;
+                8:              light &lt;= 7&#39;b0000000;
+                9:              light &lt;= 7&#39;b0000100;
+                4&#39;b1010:        light &lt;= 7&#39;b0001000;
+                4&#39;b1011:        light &lt;= 7&#39;b1100000;
+                4&#39;b1100:        light &lt;= 7&#39;b0110001;
+                4&#39;b1101:        light &lt;= 7&#39;b1000010;
+                4&#39;b1110:        light &lt;= 7&#39;b0110000;
+                4&#39;b1111:        light &lt;= 7&#39;b0111000;
+                default:        light &lt;= 7&#39;b0000001;
+            endcase
+        end
+    end
+
+endmodule
+
+
+
+`timescale 1ns / 1ps
+
+module VTF_CPU;
+
+    // Inputs
+    reg clk;
+    reg enable;
+    reg reset;
+    reg [3:0] SW;
+    reg start;
+    reg button;
+
+    // Outputs
+    wire [6:0] light;
+    wire [3:0] en;
+
+    // Instantiate the Unit Under Test (UUT)
+    CPU uut (
+        .clk(clk), 
+        .enable(enable), 
+        .reset(reset), 
+        .SW(SW), 
+        .start(start), 
+        .button(button), 
+        .light(light), 
+        .en(en)
+    );
+
+    initial begin
+        // Initialize Inputs
+        clk = 0;
+        enable = 0;
+        reset = 0;
+        SW = 0;
+        start = 0;
+        button = 0;
+
+        // Wait 100 ns for global reset to finish
+        #100;
+        
+        $display(&quot;pc:     id_ir      :reg_A:reg_B:reg_C:da:dd:  :w:reC1:gr1 :gr2 : gr3&quot;);
+        $monitor(&quot;%h:%b:%h:%h:%h:%h:%h:%b:%h:%h:%h:%h&quot;, 
+            uut.pcpu.pc, uut.pcpu.id_ir, uut.pcpu.reg_A, uut.pcpu.reg_B, uut.pcpu.reg_C,
+            uut.d_addr, uut.d_dataout, uut.d_we, uut.pcpu.reg_C1, uut.pcpu.gr[1], uut.pcpu.gr[2], uut.pcpu.gr[3]);
+            
+      enable &lt;= 0; start &lt;= 0;
+        // Add stimulus here
+        #10 reset &lt;= 1;
+        #10 reset &lt;= 0;
+        #10 enable &lt;= 1;
+        #10 start &lt;=1;
+        //#10 start &lt;= 0;
+        #100;
+    end
+   always #20 button = ~button;
+    always #5 clk = ~clk;
+endmodule
+
+
+
+

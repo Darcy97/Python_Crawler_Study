@@ -3,6 +3,7 @@
 __author__ = 'Darcy'
 
 import re
+import urllib2
 
 old_url = 'http://www.jikexueyuan.com/course/android/?pageNum=2'
 total_page = 20
@@ -27,6 +28,23 @@ f.close()
 #     print item
 
 # sub 实现翻页
-for i in range(2, total_page + 1):
-    new_link = re.sub('pageNum=(\d+)', 'pageNum=%d'%i, old_url)
-    print new_link
+# for i in range(2, total_page + 1):
+#     new_link = re.sub('pageNum=(\d+)', 'pageNum=%d'%i, old_url)
+#     print new_link
+
+# 爬取代码文本
+
+cpu_f = open('cpu_design.html', 'r')
+cpu_html = cpu_f.read()
+cpu_f.close()
+
+print '\n'
+code_list = re.findall('<pre><code>(.*?)</code></pre>', cpu_html, re.S)
+
+test_text = open('test_text', 'w')
+
+for item in code_list:
+    test_text.write(item)
+    test_text.write('\n\n\n\n')
+
+
